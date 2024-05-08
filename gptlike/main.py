@@ -1,4 +1,5 @@
 from  ollama_api import ask_local
+from groq_api import ask_groq
 
 import streamlit as st
 import time
@@ -26,7 +27,8 @@ if __name__ == "__main__":
 
         ## Add Spinner 
         with st.spinner("Thinking..."):
-            response = ask_local(model_name, st.session_state.messages)
+            #response = ask_local("llama3", st.session_state.messages)
+            response = ask_groq("llama3-8b-8192", st.session_state.messages)
         
         # Display assistant response in chat message container
         with st.chat_message("assistant"):

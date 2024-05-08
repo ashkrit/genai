@@ -2,14 +2,14 @@ import json
 import requests
 
 
-def ask_local(model:str,message:[]) -> str:
+def ask_local(model:str,conversation:[]) -> str:
     url = "http://0.0.0.0:11434/api/chat"
     headers = {
         "Content-Type": "application/json"
     }
     data = {
         "model": model,
-        "messages":message,
+        "messages":conversation,
         "stream":True
     }
     reply = requests.post(url, headers=headers, data=json.dumps(data))

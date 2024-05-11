@@ -28,7 +28,8 @@ if __name__ == "__main__":
         ## Add Spinner 
         with st.spinner("Thinking..."):
             #response = ask_local("llama3", st.session_state.messages)
-            response = ask_groq("llama3-8b-8192", st.session_state.messages)
+            #response = ask_groq("llama3-8b-8192", st.session_state.messages)
+            response = ask_groq("llama3-70b-8192", st.session_state.messages)
         
         # Display assistant response in chat message container
         with st.chat_message("assistant"):

@@ -17,8 +17,8 @@ for message in st.session_state.messages:
 
 # Runtime options
 model_options = {
-    "local": ["llama3","gemma:7b"],
-    "Groq": ["llama3-8b-8192", "llama3-70b-8192"]
+    "local": ["llama3","gemma:2b","gemma:7b","phi3","mistral","command-r","dbrx"],
+    "Groq": ["gemma-7b-it","llama3-8b-8192", "llama3-70b-8192","mixtral-8x7b-32768"]
 }
 
 model_runtime = None
@@ -38,11 +38,12 @@ if __name__ == "__main__":
             selected_model_name = st.selectbox("Model Name", model_name_options, key="model_dropdown")
         else:
             # Disable or display a placeholder for the second dropdown when runtime is not selected
-            model_name =st.selectbox("Model Name", ["Please select a runtime first"], key="model_dropdown", disabled=True)
+            model_name=st.selectbox("Model Name", ["Please select a runtime first"], key="model_dropdown", disabled=True)
     
-    st.title(f"You are talking to {model_runtime}({model_name})")
+   
 
-    if prompt:= st.chat_input("Say something"):
+    if prompt:= st.chat_input("How can i help ?"):
+        st.title(f"You are talking to {model_runtime} ({model_name})")
         with st.chat_message("user"):
             st.markdown(prompt)
         st.session_state.messages.append({"role": "user", "content": prompt})
@@ -58,6 +59,9 @@ if __name__ == "__main__":
         
         # Display assistant response in chat message container
         with st.chat_message("assistant"):
-            st.markdown(response)
+            print(response)
+            model_reply = f"{model_runtime} ({model_name}): {response}"
+            st.markdown(model_reply)
+            st.markdown(f"#### Reply from:  {model_runtime} ({model_name}) ")
         # Add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": response})

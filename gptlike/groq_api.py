@@ -22,7 +22,12 @@ def ask_groq(model:str,message:[]) -> str:
     reply_json = json.loads(reply.text)
     choice = reply_json["choices"]
     reply_message= choice[0]["message"]    
-    return reply_message["content"]
+    reply_message= reply_message["content"]
+
+    print("**********")
+    print(reply_message)
+    print("**********")
+    return reply_message
 
 if __name__ == "__main__":
     messages = []

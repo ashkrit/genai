@@ -22,6 +22,10 @@ def ask_local(model:str,message:[]) -> str:
        message = body["message"]
        buffer+=message["content"]
     
+    print("**********")
+    print(buffer)
+    print("**********")
+
     return buffer
 
 if __name__ == "__main__":

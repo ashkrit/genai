@@ -22,11 +22,35 @@ model_options = {
 }
 
 model_runtime = None
-model_name= None
+selected_model_name= None
+
+
+def newConversation():
+    if prompt:= st.chat_input("How can i help ?"):
+        st.title(f"You are talking to {model_runtime} ({selected_model_name})")
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        st.session_state.messages.append({"role": "user", "content": prompt})
+
+        ## Add Spinner 
+        with st.spinner("Thinking..."):
+
+            if model_runtime=="local":
+                response = ask_local(selected_model_name, st.session_state.messages)
+            elif  model_runtime=="Groq": 
+                response = ask_groq(selected_model_name, st.session_state.messages)
+            
+        
+        # Display assistant response in chat message container
+        with st.chat_message("assistant"):
+            print(response)
+            model_reply = f"{model_runtime} ({selected_model_name}): {response}"
+            st.markdown(model_reply)
+            st.markdown(f"#### Reply from:  {model_runtime} ({selected_model_name}) ")
+        # Add assistant response to chat history
+        st.session_state.messages.append({"role": "assistant", "content": response})
 
 if __name__ == "__main__":
-
-    model_name="llama3"
 
     with st.sidebar:
         st.title("Settings")
@@ -38,30 +62,21 @@ if __name__ == "__main__":
             selected_model_name = st.selectbox("Model Name", model_name_options, key="model_dropdown")
         else:
             # Disable or display a placeholder for the second dropdown when runtime is not selected
-            model_name=st.selectbox("Model Name", ["Please select a runtime first"], key="model_dropdown", disabled=True)
+            model_runtime=st.selectbox("Model Name", ["Please select a runtime first"], key="model_dropdown", disabled=True)
+
     
-   
+    expander = st.sidebar.expander("Conversations !", expanded=False)
 
-    if prompt:= st.chat_input("How can i help ?"):
-        st.title(f"You are talking to {model_runtime} ({model_name})")
-        with st.chat_message("user"):
-            st.markdown(prompt)
-        st.session_state.messages.append({"role": "user", "content": prompt})
+    with expander:
+        new_action = st.button("New!")
 
-        ## Add Spinner 
-        with st.spinner("Thinking..."):
-
-            if model_runtime=="local":
-                response = ask_local(model_name, st.session_state.messages)
-            elif  model_runtime=="Groq": 
-                response = ask_groq("llama3-8b-8192", st.session_state.messages)
+        if new_action:
+            st.session_state.messages=[]
+            #st.stop()
             
-        
-        # Display assistant response in chat message container
-        with st.chat_message("assistant"):
-            print(response)
-            model_reply = f"{model_runtime} ({model_name}): {response}"
-            st.markdown(model_reply)
-            st.markdown(f"#### Reply from:  {model_runtime} ({model_name}) ")
-        # Add assistant response to chat history
-        st.session_state.messages.append({"role": "assistant", "content": response})
+
+        #st.image("(link unavailable) Streamlit-logo.png")
+   
+    newConversation()
+
+    

@@ -6,24 +6,37 @@ import time
 import random
 import uuid
 import json
+import os
+import datetime
 
 
 
 app_config = Config("./app_config.json")
 conversation_store=app_config.get("conversation.path")
 
+## read file from given folders
+def load_conversation(root_folder:str):
+    for file_name in os.listdir(root_folder):
+        if file_name.endswith(".json"):
+            with open(os.path.join(root_folder, file_name), "r") as f:
+                conversation = json.load(f)
+                st.session_state.conversations.insert(0,conversation)
+
+
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
     st.session_state.conversations = []
-    st.session_state.conversation_count=1
     st.session_state.model_runtime = None
     st.session_state.selected_model_name= None
+    load_conversation(conversation_store)
 
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
+
+
 
 # Runtime options
 model_options = {
@@ -64,7 +77,6 @@ def newConversation():
 
 
 def start_new_conversation():
-    current_value = st.session_state.conversation_count
 
     ##clone st.session_state.messages
     old_message = []
@@ -72,7 +84,7 @@ def start_new_conversation():
         old_message.append(m)
 
     with st.spinner("Starting new..."):
-        st.session_state.messages.append({"role": "user", "content": "Give me 1 line title for conversation. Not more than 50 words"})
+        st.session_state.messages.append({"role": "user", "content": "Generate title for conversation so fat. It must be under 50 words"})
         print("Asking for title....." + str(st.session_state.model_runtime))
         title= ask(st.session_state.model_runtime, st.session_state.selected_model_name, st.session_state.messages)
         print(f"Title is {title}")
@@ -86,9 +98,9 @@ def start_new_conversation():
             json_text=json.dumps(conversation_record)
             f.write(f"{json_text}")
 
-        st.session_state.conversations.append(conversation_record)
+        st.session_state.conversations.insert(0,conversation_record)
         st.session_state.messages=[]
-        st.session_state.conversation_count = current_value+1
+       
 
 
 if __name__ == "__main__":
@@ -111,10 +123,14 @@ if __name__ == "__main__":
             st.session_state.model_runtime=st.selectbox("Model Name", ["Please select a runtime first"], key="model_dropdown", disabled=True)
 
     
-    expander = st.sidebar.expander("Conversations !", expanded=False)
+    expander = st.sidebar.expander("Conversations", expanded=True)
     with expander:
       for conversation in st.session_state.conversations:
-        st.button(conversation["name"],on_click=conversation_click, args=(conversation["value"],))
+        when = conversation["when"]
+        e = datetime.datetime.fromtimestamp(when)
+        user_friendly_time = e.strftime("%Y-%m-%d %H:%M:%S")
+        tag = f"{user_friendly_time} - {conversation["name"]}"
+        st.button(tag,on_click=conversation_click, args=(conversation["value"],))
     
 
         #st.image("(link unavailable) Streamlit-logo.png")

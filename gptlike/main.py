@@ -9,6 +9,8 @@ import random
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
+    st.session_state.conversations = []
+    st.session_state.conversation_count=1
 
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
@@ -24,10 +26,13 @@ model_options = {
 model_runtime = None
 selected_model_name= None
 
+def conversation_click(messages:[]):
+    print(f"Link Clicked {messages}")
+    st.session_state.messages=messages
 
 def newConversation():
+    
     if prompt:= st.chat_input("How can i help ?"):
-        st.title(f"You are talking to {model_runtime} ({selected_model_name})")
         with st.chat_message("user"):
             st.markdown(prompt)
         st.session_state.messages.append({"role": "user", "content": prompt})
@@ -50,10 +55,27 @@ def newConversation():
         # Add assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": response})
 
+
+
+
 if __name__ == "__main__":
 
+    st.title(f"How can i help you today")
     with st.sidebar:
         st.title("Settings")
+        new_action = st.button("New Conversation")
+        if new_action:
+            current_value = st.session_state.conversation_count
+
+            ##clone st.session_state.messages
+            old_message = []
+            for m in st.session_state.messages:
+                old_message.append(m)
+
+            st.session_state.conversations.append({"name":f"conversation-{current_value}", "value":old_message})
+            st.session_state.messages=[]
+            st.session_state.conversation_count = current_value+1
+
         model_runtime = st.selectbox("Runtime", list(model_options.keys()), key="runtime_dropdown")
         
         if model_runtime:
@@ -66,17 +88,13 @@ if __name__ == "__main__":
 
     
     expander = st.sidebar.expander("Conversations !", expanded=False)
-
     with expander:
-        new_action = st.button("New!")
-
-        if new_action:
-            st.session_state.messages=[]
-            #st.stop()
-            
+      for conversation in st.session_state.conversations:
+        st.button(conversation["name"],on_click=conversation_click, args=(conversation["value"],))
+    
 
         #st.image("(link unavailable) Streamlit-logo.png")
-   
+
     newConversation()
 
     

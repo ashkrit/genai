@@ -1,10 +1,16 @@
-from  ollama_api import ask_local
+from ollama_api import ask_local
 from groq_api import ask_groq
-
+from application_config import Config
 import streamlit as st
 import time
 import random
+import uuid
+import json
 
+
+
+app_config = Config("./app_config.json")
+conversation_store=app_config.get("conversation.path")
 
 
 if "messages" not in st.session_state:
@@ -71,7 +77,16 @@ def start_new_conversation():
         title= ask(st.session_state.model_runtime, st.session_state.selected_model_name, st.session_state.messages)
         print(f"Title is {title}")
 
-        st.session_state.conversations.append({"name":f"{title}-{current_value}", "value":old_message})
+        conversation_record = {"name":f"{title}", "value":old_message, "when":time.time()}
+        message_id=str(uuid.uuid4())
+        ## Get current time stamp as long 
+    
+        ## Write JSON to file 
+        with open(f"{conversation_store}/{message_id}.json", "a") as f:
+            json_text=json.dumps(conversation_record)
+            f.write(f"{json_text}")
+
+        st.session_state.conversations.append(conversation_record)
         st.session_state.messages=[]
         st.session_state.conversation_count = current_value+1
 

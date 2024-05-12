@@ -1,3 +1,4 @@
 {
-    "conversation.path":"./conversation_data"
+    "conversation.path":"./conversation_data",
+    "prompt.path":"./prompts"
 }

@@ -13,6 +13,7 @@ import datetime
 
 app_config = Config("./app_config.json")
 conversation_store=app_config.get("conversation.path")
+prompt_store=app_config.get("prompt.path")
 
 ## read file from given folders
 def load_conversation(root_folder:str):
@@ -22,14 +23,21 @@ def load_conversation(root_folder:str):
                 conversation = json.load(f)
                 st.session_state.conversations.insert(0,conversation)
 
+def load_prompts(root_folder:str):
+    for file_name in os.listdir(root_folder):
+        if file_name.endswith(".txt"):
+                st.session_state.prompts.insert(0,file_name.split(".")[0])
+
 
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
     st.session_state.conversations = []
+    st.session_state.prompts = []
     st.session_state.model_runtime = None
     st.session_state.selected_model_name= None
     load_conversation(conversation_store)
+    load_prompts(prompt_store)
 
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
@@ -47,6 +55,18 @@ model_options = {
 def conversation_click(messages:[]):
     print(f"Link Clicked {messages}")
     st.session_state.messages=messages
+
+def prompt_click(prompt_template:str):
+     print(f"Link Clicked {prompt_template}")
+     ## Read content of prompt_templte file 
+     with open(os.path.join(prompt_store, f"{prompt_template}.txt"), "r") as f:
+         prompt_content = f.read()
+         st.session_state.messages=[]
+         st.session_state.messages.append({"role": "user", "content": prompt_content})
+         with st.spinner("Thinking..."):
+            response= ask(st.session_state.model_runtime, st.session_state.selected_model_name, st.session_state.messages)
+            st.session_state.messages.append({"role": "assistant", "content": response})
+
 
 def ask(runtime:str,name:str,messages:[]) -> str :
     if runtime=="local":
@@ -109,7 +129,7 @@ def start_new_conversation():
 
 if __name__ == "__main__":
 
-    st.title(f"How can i help you today")
+    #st.title(f"How can i help you today")
     with st.sidebar:
         st.title("Settings")
         new_action = st.button("New Conversation")
@@ -127,8 +147,8 @@ if __name__ == "__main__":
             st.session_state.model_runtime=st.selectbox("Model Name", ["Please select a runtime first"], key="model_dropdown", disabled=True)
 
     
-    expander = st.sidebar.expander("Conversations", expanded=True)
-    with expander:
+    section_conversation = st.sidebar.expander("Conversations", expanded=True)
+    with section_conversation:
       for conversation in st.session_state.conversations:
         when = conversation["when"]
         e = datetime.datetime.fromtimestamp(when)
@@ -136,9 +156,11 @@ if __name__ == "__main__":
         tag = f"{user_friendly_time} - {conversation["name"]}"
         st.button(tag,on_click=conversation_click, args=(conversation["value"],))
     
-
-        #st.image("(link unavailable) Streamlit-logo.png")
-
+    section_prompts = st.sidebar.expander("Prompts", expanded=True)
+    with section_prompts:
+        for prompt in st.session_state.prompts:
+            st.button(prompt,on_click=prompt_click, args=(prompt,))
+    
     newConversation()
 
     

@@ -89,7 +89,11 @@ def start_new_conversation():
         title= ask(st.session_state.model_runtime, st.session_state.selected_model_name, st.session_state.messages)
         print(f"Title is {title}")
 
-        conversation_record = {"name":f"{title}", "value":old_message, "when":time.time()}
+        conversation_record = {"name":f"{title}", 
+                               "runtime":st.session_state.model_runtime,
+                               "model": st.session_state.selected_model_name,
+                               "value":old_message, 
+                               "when":time.time()}
         message_id=str(uuid.uuid4())
         ## Get current time stamp as long 
     

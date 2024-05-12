@@ -1,0 +1,2 @@
+Classify the text into neutral, negative, or positive
+ready ? 

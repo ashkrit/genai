@@ -1,0 +1,3 @@
+pandasai[connectors]
+streamlit
+pyyaml

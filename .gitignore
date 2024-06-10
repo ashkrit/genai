@@ -1,1 +1,5 @@
 **/__pycache__/
+gptlike/conversation_data/**
+mysql/pandasai.log
+mysql/cache/**
+mysql/exports/**/**

@@ -1,2 +1,2 @@
 # genai
-Generative AI
+Generative AI Play ground and examples
